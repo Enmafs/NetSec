@@ -192,7 +192,8 @@ sudo python3 EnmanuelFelizSoto_20251402_DHCP_Starvation_P1.py
 
 **Captura del ataque:**
 
-![DHCP Starvation](screenshots/dhcp_starvation.png)
+![DHCP Starvation]<img width="1544" height="958" alt="image" src="https://github.com/user-attachments/assets/b9f856e8-a7fd-4843-a2bf-fa778c54a4f9" />
+
 
 > Pool agotado: 20 solicitudes enviadas, 0 OFFER recibidos — servidor DHCP sin IPs disponibles.
 
@@ -226,7 +227,8 @@ sudo python3 EnmanuelFelizSoto_20251402_MAC_Flooding_P1.py -i eth1 -c 15000
 
 **Captura del ataque:**
 
-![MAC Flooding](screenshots/mac_flooding.png)
+![MAC Flooding]<img width="830" height="681" alt="image" src="https://github.com/user-attachments/assets/192ad17e-31d7-4684-b252-04b840a06f8b" />
+
 
 > Tabla CAM de SW2 con 109 entradas dinámicas en VLAN 10 — todas aprendidas desde Et0/2 (puerto del atacante).
 
@@ -261,7 +263,8 @@ sudo python3 EnmanuelFelizSoto_20251402_STP_Root_P1.py -i eth0 -p 0 -t 120
 
 **Captura del ataque:**
 
-![STP Root Claim](screenshots/stp_root.png)
+![STP Root Claim]<img width="1017" height="616" alt="image" src="https://github.com/user-attachments/assets/b6f8bb8c-12a6-4455-a74e-460c226f5202" />
+
 
 > SW1 muestra Root ID Priority **0**, Address `0900.0000.0001` — el atacante fue aceptado como Root Bridge en VLAN 20.
 
