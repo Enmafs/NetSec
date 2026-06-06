@@ -22,7 +22,8 @@ Demostrar la ejecución práctica de ataques de seguridad a nivel de **Capa 2** 
 
 > Simulada en PNetLab con dispositivos Cisco IOL y contenedores Docker (kalinet/desktop) como hosts atacantes.
 
-![Topología](topology.png)
+![Topología]<img width="1297" height="652" alt="image" src="https://github.com/user-attachments/assets/6a56f798-cf04-4a6e-a4ba-34aa002630cb" />
+
 
 ### Dispositivos
 
