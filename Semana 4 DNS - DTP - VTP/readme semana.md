@@ -44,9 +44,9 @@ mediante ARP Poisoning, para luego documentar y aplicar las contramedidas corres
 
 ### 2.1 Topología General
 
-![Topología del laboratorio](images/Captura_de_pantalla_2026-06-11_230258.png)
+![Topología del laboratorio](images/topologia_nueva.png)
 
-*Figura 1. Topología general del laboratorio (PNETLab) — Enmanuel Feliz, Matrícula 2025-1402.*
+*Figura 1. Topología general del laboratorio (PNETLab) — Enmanuel Feliz Soto, Matrícula 20251402.*
 
 ### 2.2 Direccionamiento e interfaces
 
@@ -229,14 +229,20 @@ subdominios) y responde con la IP del servicio web local del atacante.
 3. **Filtrado por dominio:** si el campo *Question Name* de la consulta coincide con `itla.edu.do` (o el dominio configurado), el script construye una respuesta DNS falsificada.
 4. **Construcción de la respuesta falsa:** se genera un paquete `IP/UDP/DNS` con los mismos campos de transacción (*Transaction ID*, puertos, direcciones origen/destino invertidos) que la consulta original, con un registro de respuesta tipo A que apunta a `--spoof-ip`.
 5. **Envío de la respuesta:** la respuesta falsa se envía a la víctima antes de que llegue (o en lugar de) la respuesta legítima del servidor DNS real.
-6. **Resultado:** el navegador de la víctima resuelve `itla.edu.do` a la IP del servicio web local del atacante y carga dicho contenido en lugar del sitio legítimo.
+6. **Resultado:** el navegador de la víctima resuelve `itla.edu.do` a la IP del servicio web local del atacante y carga dicho contenido en lugar del sitio legítimo. En la prueba realizada (ver Figuras 4-6), la víctima `14.2.0.12` recibió como respuesta para `itla.edu.do` la IP `14.2.0.13` (atacante), en lugar de la IP legítima resuelta normalmente por el servidor DNS `14.2.0.130`.
 
 ### 5.3 Capturas de pantalla
-> *Espacio reservado — Captura del equipo víctima ANTES del ataque (`nslookup itla.edu.do` con IP legítima, tabla ARP sin envenenar).*
->
-> *Espacio reservado — Captura DURANTE/DESPUÉS del ataque (`nslookup itla.edu.do` con IP falsificada, tabla ARP envenenada, navegador cargando sitio falso).*
->
-> *Espacio reservado — Captura de Wireshark mostrando las tramas ARP "is-at" falsificadas y la respuesta DNS spoof.*
+![Ejecución del ataque ARP Poisoning + DNS Spoofing](images/dns_spoof_terminal.png)
+
+*Figura 4. Ejecución del script de ARP Poisoning + DNS Spoofing: filtro `udp port 53 and host 14.2.0.12`, dominio objetivo `itla.edu.do` → `14.2.0.13`, víctima `14.2.0.12`. El log muestra cada consulta interceptada y la respuesta falsificada (`[SPOOFED] itla.edu.do → 14.2.0.13`), junto con las peticiones HTTP GET recibidas en el servidor web local de demostración.*
+
+![Navegador de la víctima cargando la página falsa](images/dns_spoof_browser.png)
+
+*Figura 5. Navegador de la víctima accediendo a `itla.edu.do`: en lugar del portal real de ITLA, se carga la página falsa servida localmente por el atacante ("Pagina falsa DNS Spoofing Demo — Enmanuel Feliz Soto 20251402"), confirmando que la resolución del dominio fue exitosamente suplantada.*
+
+![nslookup itla.edu.do en la víctima](images/dns_spoof_nslookup.png)
+
+*Figura 6. Resultado de `nslookup itla.edu.do` ejecutado en la víctima: el servidor DNS consultado (`14.2.0.130`) responde que `itla.edu.do` resuelve a `14.2.0.13` (IP del atacante), en lugar de la IP legítima, confirmando el envenenamiento de la resolución DNS.*
 
 ### 5.4 Contramedidas
 - **Dynamic ARP Inspection (DAI):** habilitar DAI en los switches, validando las asociaciones IP-MAC contra la tabla de DHCP Snooping, descartando paquetes ARP no válidos.
@@ -261,8 +267,11 @@ subdominios) y responde con la IP del servicio web local del atacante.
 ### 6.2 Contenido por repositorio/carpeta
 - Video demostrativo (máx. 5 minutos): topología visible con nombre y matrícula, hora y fecha visibles, rostro y voz del estudiante, demostración del ataque y de la contramedida.
 - Script de la herramienta (`.py`) con comentarios.
-- Documentación técnica profesional (este documento, en PDF y README).
-- Capturas de pantalla del antes/después de cada ataque.
+- Capturas de pantalla del antes/después de cada ataque (incluidas en este README).
+
+> La documentación técnica completa en PDF (formato de entrega para el profesor) se
+> encuentra como archivo aparte y **no se incluye dentro de este repositorio**; este
+> README contiene el mismo contenido en formato Markdown.
 
 ### 6.3 Lista de reproducción de YouTube
 > *Espacio reservado — Enlace a la lista de reproducción con los tres videos: VTP Attack, DTP VLAN Hopping, DNS Spoofing/Poisoning.*
