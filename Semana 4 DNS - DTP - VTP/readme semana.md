@@ -178,7 +178,7 @@ las VLANs permitidas.
 
 *Figura 2. Estado del puerto `Et0/3` ANTES del ataque DTP — `Administrative Mode: dynamic desirable`, `Operational Mode: static access`. El acceso a VLAN 10 aparece "Inactive".*
 
-![Después del ataque DTP](images/Captura_de_pantalla_2026-06-11_224638.png)
+<img width="565" height="342" alt="Captura de pantalla 2026-06-11 224638" src="https://github.com/user-attachments/assets/e70ae881-fe16-4b2b-aedc-46de81f95d29" />
 
 *Figura 3. Estado del puerto `Et0/3` DESPUÉS del ataque DTP — `Operational Mode: trunk`, encapsulación operativa `dot1q`, `Trunking VLANs Enabled: ALL`, VLAN 10 ahora activa (VLAN0010).*
 
@@ -232,17 +232,22 @@ subdominios) y responde con la IP del servicio web local del atacante.
 6. **Resultado:** el navegador de la víctima resuelve `itla.edu.do` a la IP del servicio web local del atacante y carga dicho contenido en lugar del sitio legítimo. En la prueba realizada (ver Figuras 4-6), la víctima `14.2.0.12` recibió como respuesta para `itla.edu.do` la IP `14.2.0.13` (atacante), en lugar de la IP legítima resuelta normalmente por el servidor DNS `14.2.0.130`.
 
 ### 5.3 Capturas de pantalla
-![Ejecución del ataque ARP Poisoning + DNS Spoofing](images/dns_spoof_terminal.png)
 
-*Figura 4. Ejecución del script de ARP Poisoning + DNS Spoofing: filtro `udp port 53 and host 14.2.0.12`, dominio objetivo `itla.edu.do` → `14.2.0.13`, víctima `14.2.0.12`. El log muestra cada consulta interceptada y la respuesta falsificada (`[SPOOFED] itla.edu.do → 14.2.0.13`), junto con las peticiones HTTP GET recibidas en el servidor web local de demostración.*
+<img width="627" height="477" alt="Captura de pantalla 2026-06-12 001721" src="https://github.com/user-attachments/assets/3fee1df8-c50f-40b9-a052-4f33f0078df1" />
 
-![Navegador de la víctima cargando la página falsa](images/dns_spoof_browser.png)
+*Figura 4. Ejecucion inicial del Banner del script de ataque `Poisoning + Spoofing`; donde el usuario debe confirmar la ejecución e indicar la `interfáz de red` por donde va a fluir el tráfico, `esta debe estar conectada a la red donde está la víctima`.
 
-*Figura 5. Navegador de la víctima accediendo a `itla.edu.do`: en lugar del portal real de ITLA, se carga la página falsa servida localmente por el atacante ("Pagina falsa DNS Spoofing Demo — Enmanuel Feliz Soto 20251402"), confirmando que la resolución del dominio fue exitosamente suplantada.*
+<img width="845" height="822" alt="Captura de pantalla 2026-06-12 014859" src="https://github.com/user-attachments/assets/6c57450d-393c-467e-9267-346a4d3383da" />
 
-![nslookup itla.edu.do en la víctima](images/dns_spoof_nslookup.png)
+*Figura 5. Ejecución del script de ARP Poisoning + DNS Spoofing: filtro `udp port 53 and host 14.2.0.12`, dominio objetivo `itla.edu.do` → `14.2.0.13`, víctima `14.2.0.12`. El log muestra cada consulta interceptada y la respuesta falsificada (`[SPOOFED] itla.edu.do → 14.2.0.13`), junto con las peticiones HTTP GET recibidas en el servidor web local de demostración.*
 
-*Figura 6. Resultado de `nslookup itla.edu.do` ejecutado en la víctima: el servidor DNS consultado (`14.2.0.130`) responde que `itla.edu.do` resuelve a `14.2.0.13` (IP del atacante), en lugar de la IP legítima, confirmando el envenenamiento de la resolución DNS.*
+<img width="1710" height="920" alt="ChatGPT Image 12 jun 2026, 01_48_00" src="https://github.com/user-attachments/assets/603c2678-1461-4d66-b63e-6b623491fbb4" />
+
+*Figura 6. Navegador de la víctima accediendo a `itla.edu.do`: en lugar del portal real de ITLA, se carga la página falsa servida localmente por el atacante ("Pagina falsa DNS Spoofing Demo — Enmanuel Feliz Soto 20251402"), confirmando que la resolución del dominio fue exitosamente suplantada.*
+
+<img width="456" height="148" alt="Captura de pantalla 2026-06-12 015628" src="https://github.com/user-attachments/assets/073770ff-0e1e-4b7c-924a-3a76165a67c8" />
+
+*Figura 7. Resultado de `nslookup itla.edu.do` ejecutado en la víctima: el servidor DNS consultado (`14.2.0.130`) responde que `itla.edu.do` resuelve a `14.2.0.13` (IP del atacante), en lugar de la IP legítima, confirmando el envenenamiento de la resolución DNS.*
 
 ### 5.4 Contramedidas
 - **Dynamic ARP Inspection (DAI):** habilitar DAI en los switches, validando las asociaciones IP-MAC contra la tabla de DHCP Snooping, descartando paquetes ARP no válidos.
