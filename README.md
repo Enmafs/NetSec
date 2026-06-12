@@ -10,7 +10,7 @@
 
 ---
 
-## 📦 Práctica 1 — Ataques Capa 2/3
+## 📦 Práctica 1 Semana 1 & 2 — Ataques Capa 2/3
 
 | # | Ataque | Repositorio | Video |
 |---|--------|-------------|-------|
@@ -21,7 +21,7 @@
 | 5 | MAC Flooding | [EnmanuelFelizSoto_20251402_MAC_Flooding_P1](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_MAC_Flooding_P1) | [▶ Ver](https://youtu.be/hSJj7oudlSQ) |
 | 6 | STP Root Claim | [EnmanuelFelizSoto_20251402_STP_Root_P1](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_STP_Root_P1) | [▶ Ver](https://youtu.be/JIAN-dWS8p8) |
 
-## 📦 Práctica 2 — VTP / DTP / DNS
+## 📦 Práctica 2 Semana 4 — VTP / DTP / DNS
 
 | # | Ataque | Repositorio | Video |
 |---|--------|-------------|-------|
