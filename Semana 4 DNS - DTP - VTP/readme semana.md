@@ -44,7 +44,7 @@ mediante ARP Poisoning, para luego documentar y aplicar las contramedidas corres
 
 ### 2.1 Topología General
 
-![Topología del laboratorio](images/topologia_nueva.png)
+<img width="1430" height="477" alt="Captura de pantalla 2026-06-12 014740" src="https://github.com/user-attachments/assets/4c79b708-c279-4b7a-93ff-15d8ffcb34ee" />
 
 *Figura 1. Topología general del laboratorio (PNETLab) — Enmanuel Feliz Soto, Matrícula 20251402.*
 
