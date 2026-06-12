@@ -174,7 +174,7 @@ las VLANs permitidas.
 
 ### 4.3 Capturas de pantalla
 
-![Antes del ataque DTP](images/ChatGPT_Image_11_jun_2026__22_36_47.png)
+<img width="1363" height="1154" alt="ChatGPT Image 11 jun 2026, 22_36_47" src="https://github.com/user-attachments/assets/5dc5a623-2ba0-4455-b243-fa02a0f41696" />
 
 *Figura 2. Estado del puerto `Et0/3` ANTES del ataque DTP — `Administrative Mode: dynamic desirable`, `Operational Mode: static access`. El acceso a VLAN 10 aparece "Inactive".*
 
