@@ -6,10 +6,10 @@
 |---|---|
 | Estudiante | Enmanuel Feliz |
 | Matrícula | 2025-1402 |
-| Sección | 2-1C |
+| Sección | 5 |
 | Asignatura | Seguridad en Redes |
 | Institución | Instituto Tecnológico de las Américas (ITLA) |
-| Departamento | Tecnología de la Información y Sistemas (TSI) |
+| Maestro | Jonathan Esteban Rondón Corniel |
 | Entorno de simulación | PNETLab (Cisco IOS + Docker) |
 
 ---
