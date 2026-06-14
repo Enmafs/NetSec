@@ -41,4 +41,4 @@
 | 20 | Gestión | 14.2.0.128 | /27 |
 | 30 | Servidores | 14.2.0.160 | /28 |
 
-> ⚠️ Todos los ataques realizados en entorno controlado con contrato de ética firmado.
+> ⚠️ Todos los ataques realizados en entorno controlado.
