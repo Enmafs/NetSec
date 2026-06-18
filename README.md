@@ -2,7 +2,8 @@
 **Estudiante:** Enmanuel Feliz Soto | **Matrícula:** 2025-1402  
 **Institución:** Instituto Tecnológico de Las Américas (ITLA)  
 **Curso:** Seguridad en Redes  
-**[Enlace a lista de reproducción de todos los videos](https://www.youtube.com/playlist?list=PLn9wGcsdOtleB6unDjCUvq4LdJYgd4TTj)
+
+[Enlace a lista de reproducción general](https://www.youtube.com/playlist?list=PLn9wGcsdOtleB6unDjCUvq4LdJYgd4TTj)
 ---
 
 ## 📦 Práctica 1 Semana 1 & 2 — Ataques Capa 2/3
