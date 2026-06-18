@@ -29,6 +29,12 @@
 | 8 | DTP VLAN Hopping | [EnmanuelFelizSoto_20251402_DTP_VLANHopping_P2](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_DTP_VLANHopping_P2) | [▶ Ver](https://youtu.be/4JSALP-O0Sg) |
 | 9 | DNS Spoofing + ARP | [EnmanuelFelizSoto_20251402_DNS_Spoofing_P2](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_DNS_Spoofing_P2) | [▶ Ver](https://youtu.be/NbU1oIHrnOo) |
 
+## 📦 Práctica 3 Semana 6 — VPNs (IPsec, GRE, DMVPN)
+
+| # | Laboratorios | Repositorio / Carpeta |
+|---|--------------|-------------|
+| 10 | IPSec, GRE, DMVPN | [VPN_Labs](./VPN_Labs) |
+
 ---
 
 ## 🗺️ Topología
