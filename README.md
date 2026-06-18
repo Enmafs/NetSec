@@ -3,7 +3,7 @@
 **Institución:** Instituto Tecnológico de Las Américas (ITLA)  
 **Curso:** Seguridad en Redes  
 
-[Lista de reproducción general](https://www.youtube.com/playlist?list=PLn9wGcsdOtleB6unDjCUvq4LdJYgd4TTj)
+[Click para ir a YouTube](https://www.youtube.com/playlist?list=PLn9wGcsdOtleB6unDjCUvq4LdJYgd4TTj)
 ---
 
 ## 📦 Práctica 1 Semana 1 & 2 — Ataques Capa 2/3
