@@ -1,0 +1,142 @@
+! ============================================================
+! VPN Lab 01 - IPSec IKEv1 Policy-Based
+! Crypto Map + ACL Criptografica
+! Enmanuel Feliz Soto | Matricula: 2025-1402 | Seccion 2-1C
+! ITLA - Seguridad en Redes
+! ============================================================
+
+! ---- ISP ----
+enable
+configure terminal
+hostname ISP
+!
+ip cef
+!
+interface Ethernet0/0
+ description Link-to-R1-S1
+ ip address 20.25.1.1 255.255.255.252
+ no shutdown
+!
+interface Ethernet0/1
+ description Link-to-R4-S2
+ ip address 20.25.1.5 255.255.255.252
+ no shutdown
+!
+end
+
+! ---- R1-S1 (Peer 1) ----
+enable
+configure terminal
+hostname R1-S1
+!
+ip cef
+!
+crypto isakmp policy 10
+ encryption aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+ lifetime 86400
+!
+crypto isakmp key Cisco2025-1402! address 20.25.1.6
+!
+crypto ipsec security-association lifetime seconds 3600
+!
+crypto ipsec transform-set TS-IKEV1-PB esp-aes 256 esp-sha256-hmac
+ mode tunnel
+!
+ip access-list extended ACL-VPN-A-B
+ permit ip 10.14.10.0 0.0.0.255 10.14.20.0 0.0.0.255
+!
+crypto map CMAP-IKEV1-PB 10 ipsec-isakmp
+ set peer 20.25.1.6
+ set transform-set TS-IKEV1-PB
+ set pfs group14
+ match address ACL-VPN-A-B
+!
+interface Ethernet0/0
+ description WAN-to-ISP-PEER-VPN
+ ip address 20.25.1.2 255.255.255.252
+ crypto map CMAP-IKEV1-PB
+ no shutdown
+!
+interface Ethernet0/3
+ description LAN-A
+ ip address 10.14.10.1 255.255.255.0
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 20.25.1.1
+!
+end
+
+! ---- R4-S2 (Peer 2) ----
+enable
+configure terminal
+hostname R4-S2
+!
+ip cef
+!
+crypto isakmp policy 10
+ encryption aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+ lifetime 86400
+!
+crypto isakmp key Cisco2025-1402! address 20.25.1.2
+!
+crypto ipsec security-association lifetime seconds 3600
+!
+crypto ipsec transform-set TS-IKEV1-PB esp-aes 256 esp-sha256-hmac
+ mode tunnel
+!
+ip access-list extended ACL-VPN-B-A
+ permit ip 10.14.20.0 0.0.0.255 10.14.10.0 0.0.0.255
+!
+crypto map CMAP-IKEV1-PB 10 ipsec-isakmp
+ set peer 20.25.1.2
+ set transform-set TS-IKEV1-PB
+ set pfs group14
+ match address ACL-VPN-B-A
+!
+interface Ethernet0/1
+ description WAN-to-ISP-PEER-VPN
+ ip address 20.25.1.6 255.255.255.252
+ crypto map CMAP-IKEV1-PB
+ no shutdown
+!
+interface Ethernet0/0
+ description LAN-B
+ ip address 10.14.20.1 255.255.255.0
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 20.25.1.5
+!
+end
+
+! ---- R2 (Host simulado LAN-A) ----
+enable
+configure terminal
+hostname R2
+!
+interface Ethernet0/0
+ ip address 10.14.10.2 255.255.255.0
+ no shutdown
+!
+interface Loopback0
+ ip address 10.14.10.100 255.255.255.255
+!
+ip route 0.0.0.0 0.0.0.0 10.14.10.1
+!
+end
+
+! ---- Server (Windows - NIC eth1) ----
+netsh interface ip set address name="eth1" static 10.14.20.10 255.255.255.0 10.14.20.1
+
+! ---- Verificacion ----
+! Desde R2:
+ping 10.14.20.10 source 10.14.10.2
+! En R1-S1 o R4-S2:
+show crypto isakmp sa
+show crypto ipsec sa
+show crypto map

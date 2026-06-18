@@ -1,0 +1,145 @@
+! ============================================================
+! VPN Lab 05 - IPSec IKEv2 Route-Based (VTI)
+! SVTI + IKEv2 Keyring/Profile
+! Enmanuel Feliz Soto | Matricula: 2025-1402 | Seccion 2-1C
+! ITLA - Seguridad en Redes
+! ============================================================
+
+! ---- ISP ----
+enable
+configure terminal
+hostname ISP
+!
+ip cef
+!
+interface Ethernet0/0
+ description Link-to-R1-S1
+ ip address 20.25.5.1 255.255.255.252
+ no shutdown
+!
+interface Ethernet0/1
+ description Link-to-R4-S2
+ ip address 20.25.5.5 255.255.255.252
+ no shutdown
+!
+end
+
+! ---- R1-S1 ----
+enable
+configure terminal
+hostname R1-S1
+!
+ip cef
+!
+crypto ikev2 proposal IKEV2-PROPOSAL
+ encryption aes-cbc-256
+ integrity sha256
+ group 14
+!
+crypto ikev2 policy IKEV2-POLICY
+ proposal IKEV2-PROPOSAL
+!
+crypto ikev2 keyring IKEV2-KEYRING-VTI
+ peer R4-S2
+  address 20.25.5.6
+  pre-shared-key Cisco2025-1402-IKEV2-VTI!
+!
+crypto ikev2 profile IKEV2-PROFILE-VTI
+ match identity remote address 20.25.5.6 255.255.255.255
+ authentication local pre-share
+ authentication remote pre-share
+ keyring local IKEV2-KEYRING-VTI
+!
+crypto ipsec transform-set TS-IKEV2-VTI esp-aes 256 esp-sha256-hmac
+ mode tunnel
+!
+crypto ipsec profile IKEV2-VTI-PROFILE
+ set transform-set TS-IKEV2-VTI
+ set ikev2-profile IKEV2-PROFILE-VTI
+ set pfs group14
+!
+interface Tunnel0
+ description VTI-IKEv2-to-R4-S2
+ ip address 14.0.2.9 255.255.255.252
+ tunnel source Ethernet0/0
+ tunnel destination 20.25.5.6
+ tunnel protection ipsec profile IKEV2-VTI-PROFILE
+ no shutdown
+!
+interface Ethernet0/0
+ description WAN-to-ISP
+ ip address 20.25.5.2 255.255.255.252
+ no shutdown
+!
+interface Ethernet0/3
+ description LAN-A
+ ip address 10.14.14.1 255.255.255.0
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 20.25.5.1
+ip route 10.14.24.0 255.255.255.0 Tunnel0
+!
+end
+
+! ---- R4-S2 ----
+enable
+configure terminal
+hostname R4-S2
+!
+ip cef
+!
+crypto ikev2 proposal IKEV2-PROPOSAL
+ encryption aes-cbc-256
+ integrity sha256
+ group 14
+!
+crypto ikev2 policy IKEV2-POLICY
+ proposal IKEV2-PROPOSAL
+!
+crypto ikev2 keyring IKEV2-KEYRING-VTI
+ peer R1-S1
+  address 20.25.5.2
+  pre-shared-key Cisco2025-1402-IKEV2-VTI!
+!
+crypto ikev2 profile IKEV2-PROFILE-VTI
+ match identity remote address 20.25.5.2 255.255.255.255
+ authentication local pre-share
+ authentication remote pre-share
+ keyring local IKEV2-KEYRING-VTI
+!
+crypto ipsec transform-set TS-IKEV2-VTI esp-aes 256 esp-sha256-hmac
+ mode tunnel
+!
+crypto ipsec profile IKEV2-VTI-PROFILE
+ set transform-set TS-IKEV2-VTI
+ set ikev2-profile IKEV2-PROFILE-VTI
+ set pfs group14
+!
+interface Tunnel0
+ description VTI-IKEv2-to-R1-S1
+ ip address 14.0.2.10 255.255.255.252
+ tunnel source Ethernet0/1
+ tunnel destination 20.25.5.2
+ tunnel protection ipsec profile IKEV2-VTI-PROFILE
+ no shutdown
+!
+interface Ethernet0/1
+ description WAN-to-ISP
+ ip address 20.25.5.6 255.255.255.252
+ no shutdown
+!
+interface Ethernet0/0
+ description LAN-B
+ ip address 10.14.24.1 255.255.255.0
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 20.25.5.5
+ip route 10.14.14.0 255.255.255.0 Tunnel0
+!
+end
+
+! ---- Verificacion ----
+ping 10.14.24.10 source 10.14.14.2
+show crypto ikev2 sa
+show crypto ipsec sa
+show interface Tunnel0

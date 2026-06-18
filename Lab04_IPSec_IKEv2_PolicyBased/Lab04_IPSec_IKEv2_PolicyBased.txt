@@ -1,0 +1,159 @@
+! ============================================================
+! VPN Lab 04 - IPSec IKEv2 Policy-Based
+! Crypto Map + IKEv2 Keyring/Profile
+! Enmanuel Feliz Soto | Matricula: 2025-1402 | Seccion 2-1C
+! ITLA - Seguridad en Redes
+! ============================================================
+
+! ---- ISP ----
+enable
+configure terminal
+hostname ISP
+!
+ip cef
+!
+interface Ethernet0/0
+ description Link-to-R1-S1
+ ip address 20.25.4.1 255.255.255.252
+ no shutdown
+!
+interface Ethernet0/1
+ description Link-to-R4-S2
+ ip address 20.25.4.5 255.255.255.252
+ no shutdown
+!
+end
+
+! ---- R1-S1 (Peer 1) ----
+enable
+configure terminal
+hostname R1-S1
+!
+ip cef
+!
+crypto ikev2 proposal IKEV2-PROPOSAL
+ encryption aes-cbc-256
+ integrity sha256
+ group 14
+!
+crypto ikev2 policy IKEV2-POLICY
+ proposal IKEV2-PROPOSAL
+!
+crypto ikev2 keyring IKEV2-KEYRING-PB
+ peer R4-S2
+  address 20.25.4.6
+  pre-shared-key Cisco2025-1402-IKEV2-PB!
+!
+crypto ikev2 profile IKEV2-PROFILE-PB
+ match identity remote address 20.25.4.6 255.255.255.255
+ authentication local pre-share
+ authentication remote pre-share
+ keyring local IKEV2-KEYRING-PB
+!
+crypto ipsec security-association lifetime seconds 3600
+!
+crypto ipsec transform-set TS-IKEV2-PB esp-aes 256 esp-sha256-hmac
+ mode tunnel
+!
+ip access-list extended ACL-VPN-A-B-V2
+ permit ip 10.14.13.0 0.0.0.255 10.14.23.0 0.0.0.255
+!
+crypto map CMAP-IKEV2-PB 10 ipsec-isakmp
+ set peer 20.25.4.6
+ set transform-set TS-IKEV2-PB
+ set ikev2-profile IKEV2-PROFILE-PB
+ set pfs group14
+ match address ACL-VPN-A-B-V2
+!
+interface Ethernet0/0
+ description WAN-to-ISP-IKEv2-PB
+ ip address 20.25.4.2 255.255.255.252
+ crypto map CMAP-IKEV2-PB
+ no shutdown
+!
+interface Ethernet0/3
+ description LAN-A
+ ip address 10.14.13.1 255.255.255.0
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 20.25.4.1
+!
+end
+
+! ---- R4-S2 (Peer 2) ----
+enable
+configure terminal
+hostname R4-S2
+!
+ip cef
+!
+crypto ikev2 proposal IKEV2-PROPOSAL
+ encryption aes-cbc-256
+ integrity sha256
+ group 14
+!
+crypto ikev2 policy IKEV2-POLICY
+ proposal IKEV2-PROPOSAL
+!
+crypto ikev2 keyring IKEV2-KEYRING-PB
+ peer R1-S1
+  address 20.25.4.2
+  pre-shared-key Cisco2025-1402-IKEV2-PB!
+!
+crypto ikev2 profile IKEV2-PROFILE-PB
+ match identity remote address 20.25.4.2 255.255.255.255
+ authentication local pre-share
+ authentication remote pre-share
+ keyring local IKEV2-KEYRING-PB
+!
+crypto ipsec security-association lifetime seconds 3600
+!
+crypto ipsec transform-set TS-IKEV2-PB esp-aes 256 esp-sha256-hmac
+ mode tunnel
+!
+ip access-list extended ACL-VPN-B-A-V2
+ permit ip 10.14.23.0 0.0.0.255 10.14.13.0 0.0.0.255
+!
+crypto map CMAP-IKEV2-PB 10 ipsec-isakmp
+ set peer 20.25.4.2
+ set transform-set TS-IKEV2-PB
+ set ikev2-profile IKEV2-PROFILE-PB
+ set pfs group14
+ match address ACL-VPN-B-A-V2
+!
+interface Ethernet0/1
+ description WAN-to-ISP-IKEv2-PB
+ ip address 20.25.4.6 255.255.255.252
+ crypto map CMAP-IKEV2-PB
+ no shutdown
+!
+interface Ethernet0/0
+ description LAN-B
+ ip address 10.14.23.1 255.255.255.0
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 20.25.4.5
+!
+end
+
+! ---- R2 ----
+enable
+configure terminal
+hostname R2
+!
+interface Ethernet0/0
+ ip address 10.14.13.2 255.255.255.0
+ no shutdown
+!
+interface Loopback0
+ ip address 10.14.13.100 255.255.255.255
+!
+ip route 0.0.0.0 0.0.0.0 10.14.13.1
+!
+end
+
+! ---- Verificacion ----
+ping 10.14.23.10 source 10.14.13.2
+show crypto ikev2 sa
+show crypto ipsec sa
+show crypto map

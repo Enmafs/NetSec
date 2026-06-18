@@ -1,0 +1,229 @@
+! ============================================================
+! VPN Lab 07 - DMVPN Fase 2 + IKEv1 + EIGRP
+! Hub-and-Spoke con tuneles Spoke-to-Spoke directos
+! Enmanuel Feliz Soto | Matricula: 2025-1402 | Seccion 2-1C
+! ITLA - Seguridad en Redes
+! ============================================================
+
+! ---- ISP (3 interfaces) ----
+enable
+configure terminal
+hostname ISP
+!
+ip cef
+!
+interface Ethernet0/0
+ description Link-to-R1-S1-HUB
+ ip address 20.25.7.1 255.255.255.252
+ no shutdown
+!
+interface Ethernet0/1
+ description Link-to-R4-S2-SPOKE1
+ ip address 20.25.7.5 255.255.255.252
+ no shutdown
+!
+interface Ethernet0/2
+ description Link-to-R5-SPOKE2
+ ip address 20.25.7.9 255.255.255.252
+ no shutdown
+!
+end
+
+! ---- R1-S1 (HUB) ----
+enable
+configure terminal
+hostname R1-S1
+!
+ip cef
+!
+crypto isakmp policy 40
+ encryption aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+ lifetime 86400
+!
+crypto isakmp key Cisco2025-1402-DMVPN1! address 0.0.0.0 0.0.0.0
+!
+crypto ipsec security-association lifetime seconds 3600
+!
+crypto ipsec transform-set TS-DMVPN1 esp-aes 256 esp-sha256-hmac
+ mode transport
+!
+crypto ipsec profile DMVPN1-PROFILE
+ set transform-set TS-DMVPN1
+!
+interface Tunnel0
+ description DMVPN1-mGRE-HUB
+ ip address 14.0.2.1 255.255.255.0
+ no ip redirects
+ ip nhrp authentication Cisco1402
+ ip nhrp map multicast dynamic
+ ip nhrp network-id 102025
+ ip nhrp holdtime 300
+ no ip split-horizon eigrp 1402
+ no ip next-hop-self eigrp 1402
+ tunnel source Ethernet0/0
+ tunnel mode gre multipoint
+ tunnel key 102025
+ tunnel protection ipsec profile DMVPN1-PROFILE
+ no shutdown
+!
+interface Ethernet0/0
+ description WAN-to-ISP-HUB
+ ip address 20.25.7.2 255.255.255.252
+ no shutdown
+!
+interface Ethernet0/3
+ description LAN-HUB
+ ip address 10.14.16.1 255.255.255.0
+ no shutdown
+!
+router eigrp 1402
+ network 14.0.2.0 0.0.0.255
+ network 10.14.16.0 0.0.0.255
+ no auto-summary
+!
+ip route 0.0.0.0 0.0.0.0 20.25.7.1
+!
+end
+
+! ---- R4-S2 (SPOKE1) ----
+enable
+configure terminal
+hostname R4-S2
+!
+ip cef
+!
+crypto isakmp policy 40
+ encryption aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+ lifetime 86400
+!
+crypto isakmp key Cisco2025-1402-DMVPN1! address 20.25.7.2
+!
+crypto ipsec security-association lifetime seconds 3600
+!
+crypto ipsec transform-set TS-DMVPN1 esp-aes 256 esp-sha256-hmac
+ mode transport
+!
+crypto ipsec profile DMVPN1-PROFILE
+ set transform-set TS-DMVPN1
+!
+interface Tunnel0
+ description DMVPN1-mGRE-SPOKE1
+ ip address 14.0.2.2 255.255.255.0
+ no ip redirects
+ ip nhrp authentication Cisco1402
+ ip nhrp map 14.0.2.1 20.25.7.2
+ ip nhrp map multicast 20.25.7.2
+ ip nhrp network-id 102025
+ ip nhrp nhs 14.0.2.1
+ ip nhrp holdtime 300
+ tunnel source Ethernet0/1
+ tunnel mode gre multipoint
+ tunnel key 102025
+ tunnel protection ipsec profile DMVPN1-PROFILE
+ no shutdown
+!
+interface Ethernet0/1
+ description WAN-to-ISP-SPOKE1
+ ip address 20.25.7.6 255.255.255.252
+ no shutdown
+!
+interface Ethernet0/0
+ description LAN-SPOKE1
+ ip address 10.14.26.1 255.255.255.0
+ no shutdown
+!
+router eigrp 1402
+ network 14.0.2.0 0.0.0.255
+ network 10.14.26.0 0.0.0.255
+ no auto-summary
+!
+ip route 0.0.0.0 0.0.0.0 20.25.7.5
+!
+end
+
+! ---- R5 (SPOKE2 con VLANs) ----
+enable
+configure terminal
+hostname R5
+!
+ip cef
+!
+crypto isakmp policy 40
+ encryption aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+ lifetime 86400
+!
+crypto isakmp key Cisco2025-1402-DMVPN1! address 20.25.7.2
+!
+crypto ipsec security-association lifetime seconds 3600
+!
+crypto ipsec transform-set TS-DMVPN1 esp-aes 256 esp-sha256-hmac
+ mode transport
+!
+crypto ipsec profile DMVPN1-PROFILE
+ set transform-set TS-DMVPN1
+!
+interface Tunnel0
+ description DMVPN1-mGRE-SPOKE2
+ ip address 14.0.2.3 255.255.255.0
+ no ip redirects
+ ip nhrp authentication Cisco1402
+ ip nhrp map 14.0.2.1 20.25.7.2
+ ip nhrp map multicast 20.25.7.2
+ ip nhrp network-id 102025
+ ip nhrp nhs 14.0.2.1
+ ip nhrp holdtime 300
+ tunnel source Ethernet0/0
+ tunnel mode gre multipoint
+ tunnel key 102025
+ tunnel protection ipsec profile DMVPN1-PROFILE
+ no shutdown
+!
+interface Ethernet0/0
+ description WAN-to-ISP-SPOKE2
+ ip address 20.25.7.10 255.255.255.252
+ no shutdown
+!
+interface Ethernet0/1
+ description Trunk-to-SW
+ no ip address
+ no shutdown
+!
+interface Ethernet0/1.10
+ description VLAN10-SPOKE2
+ encapsulation dot1Q 10
+ ip address 10.14.36.1 255.255.255.128
+!
+interface Ethernet0/1.20
+ description VLAN20-SPOKE2
+ encapsulation dot1Q 20
+ ip address 10.14.36.129 255.255.255.128
+!
+router eigrp 1402
+ network 14.0.2.0 0.0.0.255
+ network 10.14.36.0 0.0.0.255
+ no auto-summary
+!
+ip route 0.0.0.0 0.0.0.0 20.25.7.9
+!
+end
+
+! ---- Verificacion DMVPN Fase 2 ----
+! En HUB R1-S1:
+show dmvpn
+show ip nhrp
+show ip eigrp neighbors
+show crypto isakmp sa
+
+! Prueba spoke-to-spoke directo (desde R4-S2):
+ping 10.14.36.1 source 10.14.26.1
+show ip nhrp
+! Debe aparecer entrada dinamica para 14.0.2.3 -> confirma tunel directo sin Hub
