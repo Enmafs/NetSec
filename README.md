@@ -44,7 +44,7 @@
 
 ---
 
-## 📦 Práctica 3 — VPNs Fortigate
+## 📦 VPNs Fortigate
 
 | # | Tipo VPN | Repositorio | Video |
 |---|----------|-------------|-------|
