@@ -29,7 +29,7 @@
 
 ---
 
-## 📦 Práctica 3 — VPNs Cisco IOS
+## 📦 Práctica 3 Semana 6 — VPNs Cisco IOS
 
 | # | Tipo VPN | Protocolo | Mecanismo | Repositorio | Video |
 |---|----------|-----------|-----------|-------------|-------|
