@@ -48,7 +48,7 @@
 
 | # | Tipo VPN | Repositorio | Video |
 |---|----------|-------------|-------|
-| 9 | Site-to-Site L2TP/IPSec | [https://github.com/Enmafs/L2TP-PPP-](https://github.com/Enmafs/L2TP-PPP-) | [▶ Ver](https://youtu.be/-JKA2c4Z7Uo) |
+| 9 | Site-to-Site L2TP/IPSec | [https://github.com/Enmafs/EnmanuelFelizSoto_20251402_L2TP](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_L2TP) | [▶ Ver](https://youtu.be/-JKA2c4Z7Uo) |
 
 ---
 
