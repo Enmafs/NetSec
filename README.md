@@ -33,14 +33,14 @@
 
 | # | Tipo VPN | Protocolo | Mecanismo | Repositorio | Video |
 |---|----------|-----------|-----------|-------------|-------|
-| 1 | IPSec Site-to-Site | IKEv1 | Policy-Based (Crypto Map) | [EnmanuelFelizSoto_20251402_IPSec_IKEv1_PolicyBased](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_IPSec_IKEv1_PolicyBased) | [▶ Ver](https://youtu.be/_ZKK-srNnZU) |
-| 2 | IPSec Site-to-Site | IKEv1 | Route-Based (VTI) | [EnmanuelFelizSoto_20251402_IPSec_IKEv1_RouteBased_VTI](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_IPSec_IKEv1_RouteBased_VTI) | [▶ Ver](https://youtu.be/JZMyIaCoNk0) |
-| 3 | GRE sobre IPSec | IKEv1 | GRE Tunnel + IPSec Profile | [EnmanuelFelizSoto_20251402_GRE_sobre_IPSec_IKEv1](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_GRE_sobre_IPSec_IKEv1) | [▶ Ver](https://youtu.be/VRtaDZReCvE) |
-| 4 | IPSec Site-to-Site | IKEv2 | Policy-Based (Crypto Map) | [EnmanuelFelizSoto_20251402_IPSec_IKEv2_PolicyBased](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_IPSec_IKEv2_PolicyBased) | [▶ Ver](https://youtu.be/k2m9IQmynow) |
-| 5 | IPSec Site-to-Site | IKEv2 | Route-Based (VTI) | [EnmanuelFelizSoto_20251402_IPSec_IKEv2_RouteBased_VTI](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_IPSec_IKEv2_RouteBased_VTI) | [▶ Ver](https://youtu.be/7XzsDOfWo8o) |
-| 6 | GRE sobre IPSec | IKEv2 | GRE Tunnel + IKEv2 Profile | [EnmanuelFelizSoto_20251402_GRE_sobre_IPSec_IKEv2](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_GRE_sobre_IPSec_IKEv2) | [▶ Ver](https://youtu.be/G_8rjwIpjy4) |
-| 7 | DMVPN Fase 2 | IKEv1 + EIGRP | mGRE + NHRP + Spoke-to-Spoke | [EnmanuelFelizSoto_20251402_DMVPN_Fase2_IKEv1_EIGRP](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_DMVPN_Fase2_IKEv1_EIGRP) | [▶ Ver](https://youtu.be/iVLqKyAXDYM) |
-| 8 | DMVPN Fase 3 | IKEv2 + EIGRP | mGRE + NHRP redirect/shortcut | [EnmanuelFelizSoto_20251402_DMVPN_Fase3_IKEv2_EIGRP](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_DMVPN_Fase3_IKEv2_EIGRP) | [▶ Ver](https://youtu.be/qR8-BsUhoFk) |
+| 1 | IPSec Site-to-Site | IKEv1 | Policy-Based (Crypto Map) | [EnmanuelFelizSoto_20251402_IPSec_IKEv1_PolicyBased_P3](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_IPSec_IKEv1_PolicyBased) | [▶ Ver](https://youtu.be/_ZKK-srNnZU) |
+| 2 | IPSec Site-to-Site | IKEv1 | Route-Based (VTI) | [EnmanuelFelizSoto_20251402_IPSec_IKEv1_RouteBased_VTI_P3](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_IPSec_IKEv1_RouteBased_VTI) | [▶ Ver](https://youtu.be/JZMyIaCoNk0) |
+| 3 | GRE sobre IPSec | IKEv1 | GRE Tunnel + IPSec Profile | [EnmanuelFelizSoto_20251402_GRE_sobre_IPSec_IKEv1_P3](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_GRE_sobre_IPSec_IKEv1) | [▶ Ver](https://youtu.be/VRtaDZReCvE) |
+| 4 | IPSec Site-to-Site | IKEv2 | Policy-Based (Crypto Map) | [EnmanuelFelizSoto_20251402_IPSec_IKEv2_PolicyBased_P3](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_IPSec_IKEv2_PolicyBased) | [▶ Ver](https://youtu.be/k2m9IQmynow) |
+| 5 | IPSec Site-to-Site | IKEv2 | Route-Based (VTI) | [EnmanuelFelizSoto_20251402_IPSec_IKEv2_RouteBased_VTI_P3](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_IPSec_IKEv2_RouteBased_VTI) | [▶ Ver](https://youtu.be/7XzsDOfWo8o) |
+| 6 | GRE sobre IPSec | IKEv2 | GRE Tunnel + IKEv2 Profile | [EnmanuelFelizSoto_20251402_GRE_sobre_IPSec_IKEv2_P3](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_GRE_sobre_IPSec_IKEv2) | [▶ Ver](https://youtu.be/G_8rjwIpjy4) |
+| 7 | DMVPN Fase 2 | IKEv1 + EIGRP | mGRE + NHRP + Spoke-to-Spoke | [EnmanuelFelizSoto_20251402_DMVPN_Fase2_IKEv1_EIGRP_P3](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_DMVPN_Fase2_IKEv1_EIGRP) | [▶ Ver](https://youtu.be/iVLqKyAXDYM) |
+| 8 | DMVPN Fase 3 | IKEv2 + EIGRP | mGRE + NHRP redirect/shortcut | [EnmanuelFelizSoto_20251402_DMVPN_Fase3_IKEv2_EIGRP_P3](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_DMVPN_Fase3_IKEv2_EIGRP) | [▶ Ver](https://youtu.be/qR8-BsUhoFk) |
 
 ---
 
@@ -48,7 +48,7 @@
 
 | # | Tipo VPN | Repositorio | Video |
 |---|----------|-------------|-------|
-| 9 | Site-to-Site L2TP/IPSec | [https://github.com/Enmafs/EnmanuelFelizSoto_20251402_L2TP](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_L2TP) | [▶ Ver](https://youtu.be/-JKA2c4Z7Uo) |
+| 9 | Site-to-Site L2TP/IPSec | [EnmanuelFelizSoto_20251402_L2TP_P3](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_L2TP) | [▶ Ver](https://youtu.be/-JKA2c4Z7Uo) |
 
 ---
 
