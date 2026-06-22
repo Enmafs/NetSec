@@ -44,12 +44,20 @@
 
 ---
 
+## 📦 L2TP (PPP)
+
+| # | Tipo VPN | Repositorio | Video |
+|---|----------|-------------|-------|
+| 9 | Site-to-Site L2TP/IPSec | [https://github.com/Enmafs/L2TP-PPP-](https://github.com/Enmafs/L2TP-PPP-) | [▶ Ver](https://youtu.be/-JKA2c4Z7Uo) |
+
+---
+
 ## 📦 VPNs Fortigate
 
 | # | Tipo VPN | Repositorio | Video |
 |---|----------|-------------|-------|
-| 9 | IPSec Site-to-Site Fortigate | 🔄 Pendiente | 🎬 Pendiente |
-| 10 | SSL-VPN Fortigate | 🔄 Pendiente | 🎬 Pendiente |
+| 10 | IPSec Site-to-Site Fortigate | 🔄 Pendiente | 🎬 Pendiente |
+| 11 | SSL-VPN Fortigate | 🔄 Pendiente | 🎬 Pendiente |
 
 ---
 
