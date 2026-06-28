@@ -56,8 +56,8 @@
 
 | # | Tipo VPN | Repositorio | Video |
 |---|----------|-------------|-------|
-| 10 | IPSec Site-to-Site Fortigate | [EnmanuelFelizSoto_20251402_IPSec-Site-To-Site-Fortigate](https://github.com/Enmafs/EnmanuelFeliz_20251402_IPSec-Site-To-Site-Fortigate_P3) | 🎬 Pendiente |
-| 11 | SSL-VPN Fortigate | 🔄 Pendiente | 🎬 Pendiente |
+| 10 | IPSec Site-to-Site Fortigate | [EnmanuelFelizSoto_20251402_VPN-Site-To-Site-Fortigate](https://github.com/Enmafs/EnmanuelFeliz_20251402_IPSec-Site-To-Site-Fortigate_P3) | 🎬 Pendiente |
+| 11 | SSL-VPN Fortigate | [EnmanuelFelizSoto_20251402_VPN-Clientt-To-Site-Fortigate](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_VPN-Client-To-Site-Fortigate_P3) | 🎬 Pendiente |
 
 ---
 
