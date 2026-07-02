@@ -60,9 +60,5 @@
 | 11 | SSL-VPN Fortigate | [EnmanuelFelizSoto_20251402_VPN-Clientt-To-Site-Fortigate](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_VPN-Client-To-Site-Fortigate_P3) | [▶ Ver](https://youtu.be/3wKPt9EvgIY) |
 
 ---
-| Documentación P3 |
-|------------------|
-||
 
----
 > ⚠️ Laboratorios realizados en entorno controlado (PNetLab). Fines exclusivamente académicos.
