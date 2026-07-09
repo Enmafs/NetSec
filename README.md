@@ -61,7 +61,12 @@
 
 ---
 
-## 📦 Práctica 4 FORTIGATE
- 
-  ---
+## 📦 Práctica 4 Semana 7 — FortiGate: Topología de Seguridad Perimetral
+
+| # | Descripción | Repositorio | Video |
+|---|---|---|---|
+| 12 | Topología FortiGate (LAN Usuarios/Servidores, NAT, Web Filter, App Control, IPS, WAF) | [EnmanuelFelizSoto_20251402_FortigateTopology_P4](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_FortigateTopology_P4) | [▶ Ver](#) *(pendiente — se agrega en unos minutos)* |
+
+---
+
 > ⚠️ Laboratorios realizados en entorno controlado (PNetLab). Fines exclusivamente académicos.
