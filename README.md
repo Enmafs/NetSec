@@ -62,7 +62,6 @@
 ---
 
 ## 📦 Práctica 4 FORTIGATE
-
-**| # | Equipo | Versión | | Repositorio |**
-  | FORTIGATE | | 7.6.7 | |  |
+ 
+  ---
 > ⚠️ Laboratorios realizados en entorno controlado (PNetLab). Fines exclusivamente académicos.
