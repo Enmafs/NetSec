@@ -65,7 +65,7 @@
 
 | # | Descripción | Repositorio | Video |
 |---|---|---|---|
-| 12 | Topología FortiGate (LAN Usuarios/Servidores, NAT, Web Filter, App Control, IPS, WAF) | [EnmanuelFelizSoto_20251402_FortigateTopology_P4](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_FortigateTopology_P4) | [▶ Ver](#) *(pendiente — se agrega en unos minutos)* |
+| 12 | Topología FortiGate (LAN Usuarios/Servidores, NAT, Web Filter, App Control, IPS, WAF) | [EnmanuelFelizSoto_20251402_FortigateTopology_P4](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_FortigateTopology_P4) | [▶ Ver](https://youtu.be/EQpuW7qU0f4) |
 
 ---
 
