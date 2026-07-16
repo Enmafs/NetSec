@@ -73,7 +73,7 @@
 
 | # | Descripción | Repositorio | Video  |
 |---|-------------|-------------|--------|
-| 13 | DMZ, RADIUS| [https://github.com/Enmafs/EnmanuelFelizSoto_20251402_P4](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_P5) | [▶ Ver](https://youtu.be/09i8jckBX54) |
+| 13 | DMZ, RADIUS| [https://github.com/Enmafs/EnmanuelFelizSoto_20251402_DMZ-JUMP-Server-RADIUS_P5](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_DMZ-JUMP-Server-RADIUS_P5) | [▶ Ver](https://youtu.be/09i8jckBX54) |
 
 ---
 
