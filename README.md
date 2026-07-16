@@ -69,4 +69,12 @@
 
 ---
 
+## 📦 Práctica 5 Semana 9 — DMZ, Jump Server RADIUS.
+
+| # | Descripción | Repositorio | Video  |
+|---|-------------|-------------|--------|
+| 13 | DMZ, RADIUS| [https://github.com/Enmafs/EnmanuelFelizSoto_20251402_P4](https://github.com/Enmafs/EnmanuelFelizSoto_20251402_P5) | [▶ Ver](https://youtu.be/09i8jckBX54) |
+
+---
+
 > ⚠️ Laboratorios realizados en entorno controlado (PNetLab). Fines exclusivamente académicos.
